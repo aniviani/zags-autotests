@@ -1,0 +1,22 @@
+{
+  "name": "zags-tests",
+  "version": "1.0.0",
+  "description": "Playwright tests for ZAGS application",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.41.0",
+    "@types/node": "^20.11.0",
+    "dotenv": "^16.4.0",
+    "typescript": "^5.3.3"
+  }
+}
