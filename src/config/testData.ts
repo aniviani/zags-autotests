@@ -27,4 +27,27 @@ export const testData = {
     spouseBirthDate: '2001-01-01',
     spousePassport: '654321',
   },
+
+    birthService: {
+    birthPlace: 'г.Тула',
+    mother: 'Иванова Анна Сергеевна',
+    father: 'Иванов Иван Иванович',
+    grandmother: 'Иванова Мария Петровна',
+    grandfather: 'Иванов Петр Алексеевич',
+  },
+
+    citizenDeath: {
+    lastName: 'Иванов',
+    firstName: 'Сергей',
+    middleName: 'Петрович',
+    birthDate: '1955-03-10', 
+    passport: '347827',
+    gender: 'муж',
+    address: 'г. Тула, ул. Ленина, д.92, кв. 10',
+  },
+
+   deathService: {
+    deathDate: '2025-11-20', 
+    deathPlace: 'г.Тула',
+  },
 };

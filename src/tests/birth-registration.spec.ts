@@ -14,7 +14,7 @@ let citizenPage: CitizenDataPage;
 let serviceDataPage: ServiceDataPage;
 let statusPage: ApplicationStatusPage;
 
-test.describe('Marriage Registration', () => {
+test.describe('Birth Registration', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(process.env.BASE_URL as string);
     await page.waitForLoadState('networkidle');
@@ -27,15 +27,21 @@ test.describe('Marriage Registration', () => {
     statusPage = new ApplicationStatusPage(page);
   });
 
-  test('TC-01: Successful marriage registration', async () => {
+  test('TC-02: Successful birth registration (user)', async () => {
     await homePage.loginAsUser();
+
     await applicantPage.fillApplicantData(testData.applicant);
     await applicantPage.clickNext();
-    await servicePage.selectMarriageRegistration();
+
+    await servicePage.selectBirthRegistration();
+
     await citizenPage.fillCitizenData(testData.citizen);
     await citizenPage.clickNext();
-    await serviceDataPage.fillMarriageData(testData.marriageService);
+
+    await serviceDataPage.fillBirthData(testData.birthService);
     await serviceDataPage.clickComplete();
-    await statusPage.verifySuccessfulSubmission();
+
+    await statusPage.verifySuccessfulSubmission(); 
+    await statusPage.verifyStatusPageUI();         
   });
 });

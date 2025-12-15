@@ -1,18 +1,19 @@
-import { Page } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 
 export class HomePage {
-  readonly page: Page;
-
-  constructor(page: Page) {
-    this.page = page;
-  }
+  constructor(
+    readonly page: Page,
+    readonly loginAsUserButton: Locator = page.getByRole('button', { name: 'Войти как пользователь' }),
+    readonly loginAsAdminButton: Locator = page.getByRole('button', { name: 'Войти как администратор' })
+  ) {}
 
   async loginAsUser() {
-    await this.page.getByRole('button', { name: 'Войти как пользователь' }).waitFor({ timeout: 10000 });
-    await this.page.getByRole('button', { name: 'Войти как пользователь' }).click();
+    await this.loginAsUserButton.waitFor({ timeout: 10000 });
+    await this.loginAsUserButton.click();
   }
 
   async loginAsAdmin() {
-    await this.page.getByRole('button', { name: 'Войти как администратор' }).click();
+    await this.loginAsAdminButton.waitFor({ timeout: 10000 });
+    await this.loginAsAdminButton.click();
   }
 }

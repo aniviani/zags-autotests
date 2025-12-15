@@ -1,29 +1,37 @@
-import { Page } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 
 export class CitizenDataPage {
-  readonly page: Page;
-
-  constructor(page: Page) {
-    this.page = page;
-  }
+  constructor(
+    readonly page: Page,
+    readonly lastName: Locator = page.getByRole('textbox', { name: 'Фамилия *' }),
+    readonly firstName: Locator = page.getByRole('textbox', { name: 'Имя *' }),
+    readonly middleName: Locator = page.getByRole('textbox', { name: 'Отчество *' }),
+    readonly birthDate: Locator = page.getByRole('textbox', { name: 'Дата рождения *' }),
+    readonly passport: Locator = page.getByRole('textbox', { name: 'Номер паспорта' }),
+    readonly gender: Locator = page.getByRole('textbox', { name: 'Пол *' }),
+    readonly address: Locator = page.getByRole('textbox', { name: 'Адрес прописки *' }),
+    readonly nextButton: Locator = page.getByRole('button', { name: 'Далее' })
+  ) {}
 
   async fillCitizenData(data: any) {
- 
-    await this.page.getByRole('textbox', { name: 'Фамилия *' }).fill(data.lastName);
-    await this.page.getByRole('textbox', { name: 'Имя *' }).fill(data.firstName);
-    await this.page.getByRole('textbox', { name: 'Отчество *' }).fill(data.middleName);
-    await this.page.getByRole('textbox', { name: 'Дата рождения *' }).fill(data.birthDate);
     
-    if (data.passport) {
-      await this.page.getByRole('textbox', { name: 'Номер паспорта' }).fill(data.passport);
+    const { lastName, firstName, middleName, birthDate, passport, gender, address } = data;
+
+    await this.lastName.fill(lastName);
+    await this.firstName.fill(firstName);
+    await this.middleName.fill(middleName);
+    await this.birthDate.fill(birthDate);
+
+    if (passport) {
+      await this.passport.fill(passport);
     }
 
-    await this.page.getByRole('textbox', { name: 'Пол *' }).fill(data.gender);
-    await this.page.getByRole('textbox', { name: 'Адрес прописки *' }).fill(data.address);
+    await this.gender.fill(gender);
+    await this.address.fill(address);
   }
 
   async clickNext() {
-    await this.page.getByRole('button', { name: 'Далее' }).click();
+    await this.nextButton.click();
     await this.page.waitForLoadState('networkidle');
   }
 }

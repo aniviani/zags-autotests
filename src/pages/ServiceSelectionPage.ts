@@ -1,16 +1,25 @@
-import { Page } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 
 export class ServiceSelectionPage {
-  readonly page: Page;
-
-  constructor(page: Page) {
-    this.page = page;
-  }
+  constructor(
+    readonly page: Page,
+    readonly marriageRegistrationButton: Locator = page.getByRole('button', { name: 'Регистрация брака' }),
+    readonly birthRegistrationButton: Locator = page.getByRole('button', { name: 'Регистрация рождения' }),
+    readonly deathRegistrationButton: Locator = page.getByRole('button', { name: 'Регистрация смерти' })
+  ) {}
 
   async selectMarriageRegistration() {
-    await this.page.getByRole('button', { name: 'Регистрация брака' }).click();
+    await this.marriageRegistrationButton.click();
+    await this.page.waitForLoadState('networkidle');
+  }
+  
+  async selectBirthRegistration() {
+    await this.birthRegistrationButton.click();
+    await this.page.waitForLoadState('networkidle');
   }
 
- // async selectBirthRegistration() 
- // async selectDeathRegistration() 
+  async selectDeathRegistration() {
+    await this.deathRegistrationButton.click();
+    await this.page.waitForLoadState('networkidle');
+  }
 }
