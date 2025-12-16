@@ -1,10 +1,12 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+
 import { HomePage } from '../pages/HomePage';
 import { ApplicantDataPage } from '../pages/ApplicantDataPage';
 import { ServiceSelectionPage } from '../pages/ServiceSelectionPage';
 import { CitizenDataPage } from '../pages/CitizenDataPage';
 import { ServiceDataPage } from '../pages/ServiceDataPage';
 import { ApplicationStatusPage } from '../pages/ApplicationStatusPage';
+
 import { testData } from '../config/testData';
 
 let homePage: HomePage;
@@ -27,15 +29,24 @@ test.describe('Marriage Registration', () => {
     statusPage = new ApplicationStatusPage(page);
   });
 
-  test('TC-01: Successful marriage registration', async () => {
+  test('TC-01: Successful marriage registration (user)', async () => {
     await homePage.loginAsUser();
+
     await applicantPage.fillApplicantData(testData.applicant);
     await applicantPage.clickNext();
+
     await servicePage.selectMarriageRegistration();
+
     await citizenPage.fillCitizenData(testData.citizen);
     await citizenPage.clickNext();
+
     await serviceDataPage.fillMarriageData(testData.marriageService);
     await serviceDataPage.clickComplete();
-    await statusPage.verifySuccessfulSubmission();
+
+    const requestNumber = await statusPage.getRequestNumber();
+    expect(Number(requestNumber)).toBeGreaterThan(0);
+
+    expect(await statusPage.isUnderReviewStatusVisible()).toBe(true);
+    expect(await statusPage.isRegistrationDateVisible()).toBe(true);
   });
 });

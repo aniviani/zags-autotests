@@ -1,10 +1,12 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+
 import { HomePage } from '../pages/HomePage';
 import { ApplicantDataPage } from '../pages/ApplicantDataPage';
 import { ServiceSelectionPage } from '../pages/ServiceSelectionPage';
 import { CitizenDataPage } from '../pages/CitizenDataPage';
 import { ServiceDataPage } from '../pages/ServiceDataPage';
 import { ApplicationStatusPage } from '../pages/ApplicationStatusPage';
+
 import { testData } from '../config/testData';
 
 let homePage: HomePage;
@@ -41,7 +43,10 @@ test.describe('Birth Registration', () => {
     await serviceDataPage.fillBirthData(testData.birthService);
     await serviceDataPage.clickComplete();
 
-    await statusPage.verifySuccessfulSubmission(); 
-    await statusPage.verifyStatusPageUI();         
+    const requestNumber = await statusPage.getRequestNumber();
+    expect(Number(requestNumber)).toBeGreaterThan(0);
+
+    expect(await statusPage.isUnderReviewStatusVisible()).toBe(true);
+    expect(await statusPage.isRegistrationDateVisible()).toBe(true);
   });
 });

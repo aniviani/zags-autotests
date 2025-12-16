@@ -50,4 +50,13 @@ export const testData = {
     deathDate: '2025-11-20', 
     deathPlace: 'г.Тула',
   },
+
+  admin: {
+  lastName: 'Петров',
+  firstName: 'Петр',
+  middleName: 'Петрович',
+  phone: '89306796527',
+  passport: '987236',
+  birthDate: '1976-09-23', 
+},
 };
