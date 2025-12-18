@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { AdminDashboardPage } from './AdminDashboardPage';
 
 export class AdminLoginPage {
   constructor(
@@ -26,5 +27,14 @@ export class AdminLoginPage {
 
     await this.submitButton.click();
     await this.page.waitForLoadState('networkidle');
+  }
+
+  async loginAndWaitDashboard(data: any) {
+    await this.submitAdminLogin(data);
+    
+    const adminDashboard = new AdminDashboardPage(this.page);
+    await adminDashboard.waitTable();
+    
+    return adminDashboard;
   }
 }

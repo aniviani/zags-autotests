@@ -1,4 +1,8 @@
 import { Page, Locator } from '@playwright/test';
+import { ServiceSelectionPage } from './ServiceSelectionPage';
+import { CitizenDataPage } from './CitizenDataPage';
+import { ServiceDataPage } from './ServiceDataPage';
+import { ApplicationStatusPage } from './ApplicationStatusPage';
 
 export class ApplicantDataPage {
   constructor(
@@ -13,6 +17,7 @@ export class ApplicantDataPage {
 
   ) {}
 
+  
   async fillApplicantData(data: any) {
  
   const {lastName, firstName, middleName, phone, passport, address} = data;
@@ -28,5 +33,29 @@ export class ApplicantDataPage {
   async clickNext() {
     await this.nextButton.click();
     await this.page.waitForLoadState('networkidle');
+  }
+
+   async completeMarriageApplication(data: {
+    applicant: any;
+    citizen: any;
+    marriageService: any;
+  }): Promise<string> {
+    const servicePage = new ServiceSelectionPage(this.page);
+    const citizenPage = new CitizenDataPage(this.page);
+    const serviceDataPage = new ServiceDataPage(this.page);
+    const statusPage = new ApplicationStatusPage(this.page);
+
+    await this.fillApplicantData(data.applicant);
+    await this.clickNext();
+
+    await servicePage.selectMarriageRegistration();
+
+    await citizenPage.fillCitizenData(data.citizen);
+    await citizenPage.clickNext();
+
+    await serviceDataPage.fillMarriageData(data.marriageService);
+    await serviceDataPage.clickComplete();
+
+    return await statusPage.getRequestNumber();
   }
 }
