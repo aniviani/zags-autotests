@@ -53,75 +53,65 @@ test.describe('Admin Tests', () => {
   await admin2.context.close();
 });
 
+  test.describe('Admin decisions', () => {
+    test.beforeEach(async () => {
+      await homePage.loginAsAdmin();
+      await adminLoginPage.submitAdminLogin(testData.admin);
+      await dashboard.waitTable();
+    });
+
   test('TC-06: Одобрение заявки на регистрацию брака', async () => {
-    await homePage.loginAsAdmin();
-    await adminLoginPage.submitAdminLogin(testData.admin);
-    await dashboard.waitTable();
 
     await dashboard.shouldHaveService(/Получение свидетельства о браке/i);
     await dashboard.shouldHaveStatus(/На рассмотрении/i);
 
-    await dashboard.approveApplication();
-    await dashboard.shouldBeApproved();
+    await dashboard.performAction('approve');
+    await dashboard.checkStatus('approved');
   });
 
   test('TC-07: Отказ по заявке на регистрацию брака', async () => {
-    await homePage.loginAsAdmin();
-    await adminLoginPage.submitAdminLogin(testData.admin);
-    await dashboard.waitTable();
 
     await dashboard.shouldHaveService(/Получение свидетельства о браке/i);
     await dashboard.shouldHaveStatus(/На рассмотрении/i);
 
-    await dashboard.rejectApplication();
-    await dashboard.shouldBeRejected();
+    await dashboard.performAction('reject');
+    await dashboard.checkStatus('rejected');
   });
 
   test('TC-08: Одобрение заявки на регистрацию рождения', async () => {
-    await homePage.loginAsAdmin();
-    await adminLoginPage.submitAdminLogin(testData.admin);
-    await dashboard.waitTable();
 
     await dashboard.shouldHaveService(/Получение свидетельства о рождении/i);
     await dashboard.shouldHaveStatus(/На рассмотрении/i);
 
-    await dashboard.approveApplication();
-    await dashboard.shouldBeApproved();
+   await dashboard.performAction('approve');
+   await dashboard.checkStatus('approved');
   });
 
   test('TC-09: Отказ по заявке на регистрацию рождения', async () => {
-    await homePage.loginAsAdmin();
-    await adminLoginPage.submitAdminLogin(testData.admin);
-    await dashboard.waitTable();
 
     await dashboard.shouldHaveService(/Получение свидетельства о рождении/i);
     await dashboard.shouldHaveStatus(/На рассмотрении/i);
 
-    await dashboard.rejectApplication();
-    await dashboard.shouldBeRejected();
+    await dashboard.performAction('reject');
+    await dashboard.checkStatus('rejected');
   });
 
   test('TC-10: Одобрение заявки на регистрацию смерти', async () => {
-    await homePage.loginAsAdmin();
-    await adminLoginPage.submitAdminLogin(testData.admin);
-    await dashboard.waitTable();
-
+ 
     await dashboard.shouldHaveService(/Получение свидетельства о смерти/i);
     await dashboard.shouldHaveStatus(/На рассмотрении/i);
 
-    await dashboard.approveApplication();
-    await dashboard.shouldBeApproved();
+    await dashboard.performAction('approve');
+    await dashboard.checkStatus('approved');
   });
 
   test('TC-11: Отказ по заявке на регистрацию смерти', async () => {
-    await homePage.loginAsAdmin();
-    await adminLoginPage.submitAdminLogin(testData.admin);
-    await dashboard.waitTable();
 
     await dashboard.shouldHaveService(/Получение свидетельства о смерти/i);
     await dashboard.shouldHaveStatus(/На рассмотрении/i);
 
-    await dashboard.rejectApplication();
-    await dashboard.shouldBeRejected();
+    await dashboard.performAction('reject');
+    await dashboard.checkStatus('rejected');
   });
+});
 });

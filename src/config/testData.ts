@@ -60,3 +60,18 @@ export const testData = {
   birthDate: '1976-09-23', 
 },
 };
+
+export const applicationStatusMap = {
+  approved: {
+    uiText: /Одобрена/i,
+  },
+  rejected: {
+    uiText: /Отклонена/i,
+  },
+  pending: {
+    uiText: /На рассмотрении/i,
+  },
+} as const;
+
+export type ApplicationStatusKey =
+  keyof typeof applicationStatusMap;

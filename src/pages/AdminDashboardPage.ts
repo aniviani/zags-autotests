@@ -1,4 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { applicationStatusMap, ApplicationStatusKey } from '../config/testData';
+
+type AdminAction = 'approve' | 'reject';
 
 export class AdminDashboardPage {
   constructor(
@@ -39,19 +42,27 @@ export class AdminDashboardPage {
     ).toBeVisible({ timeout: 20000 });
   }
 
-  async approveApplication() {
-    await this.approveButton.click();
+  async performAction(action: AdminAction) {
+    switch (action) {
+      case 'approve':
+        await this.approveButton.click();
+        break;
+
+      case 'reject':
+        await this.rejectButton.click();
+        break;
+
+      default:
+        throw new Error(`Неизвестное действие администратора: ${action}`);
+    }
   }
 
-  async rejectApplication() {
-    await this.rejectButton.click();
-  }
+  async checkStatus(status: ApplicationStatusKey) {
+  const statusConfig = applicationStatusMap[status];
 
-  async shouldBeApproved() {
-    await this.shouldHaveStatus(/Одобрена/i);
-  }
-
-  async shouldBeRejected() {
-    await this.shouldHaveStatus(/Отклонена/i);
-  }
+  await expect(
+    this.tableCells.filter({ hasText: statusConfig.uiText }).first(),
+    `Статус "${status}" не отображается в таблице`
+  ).toBeVisible({ timeout: 20000 });
+}
 }
