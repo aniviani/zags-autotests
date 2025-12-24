@@ -1,5 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
-import { applicationStatusMap, ApplicationStatusKey } from '../config/testData';
+import { applicationStatusMap, ApplicationStatusKey, ServiceKey, serviceMap, StatusKey, statusMap } from '../config/testData';
 
 type AdminAction = 'approve' | 'reject';
 
@@ -24,45 +24,41 @@ export class AdminDashboardPage {
       hasText: new RegExp(requestNumber),
     });
 
-    await expect(
-      requestCell.first(),
-      `Заявка с номером ${requestNumber} не появилась в таблице администратора`
-    ).toBeVisible({ timeout: 20000 });
+    await expect(requestCell.first(),`Заявка с номером ${requestNumber} не появилась в таблице администратора`).toBeVisible({ timeout: 20000 });
   }
 
   async shouldHaveService(serviceName: RegExp) {
-    await expect(
-      this.tableCells.filter({ hasText: serviceName }).first()
-    ).toBeVisible({ timeout: 20000 });
+    await expect(this.tableCells.filter({ hasText: serviceName }).first()).toBeVisible({ timeout: 20000 });
   }
 
   async shouldHaveStatus(status: RegExp) {
-    await expect(
-      this.tableCells.filter({ hasText: status }).first()
-    ).toBeVisible({ timeout: 20000 });
+    await expect(this.tableCells.filter({ hasText: status }).first()).toBeVisible({ timeout: 20000 });
   }
+  
+  async shouldHaveServiceByKey(service: ServiceKey) {
+  const serviceRegExp = serviceMap[service];
+
+  await this.shouldHaveService(serviceRegExp);
+}
 
   async performAction(action: AdminAction) {
     switch (action) {
       case 'approve':
         await this.approveButton.click();
         break;
-
-      case 'reject':
-        await this.rejectButton.click();
-        break;
-
-      default:
-        throw new Error(`Неизвестное действие администратора: ${action}`);
+        
+        case 'reject':
+          await this.rejectButton.click();
+          break;
+          
+          default:
+            throw new Error(`Неизвестное действие администратора: ${action}`);
     }
   }
-
+  
   async checkStatus(status: ApplicationStatusKey) {
   const statusConfig = applicationStatusMap[status];
 
-  await expect(
-    this.tableCells.filter({ hasText: statusConfig.uiText }).first(),
-    `Статус "${status}" не отображается в таблице`
-  ).toBeVisible({ timeout: 20000 });
+  await expect(this.tableCells.filter({ hasText: statusConfig.uiText }).first(),`Статус "${status}" не отображается в таблице`).toBeVisible({ timeout: 20000 });
 }
 }

@@ -4,14 +4,24 @@ import { HomePage } from '../pages/HomePage';
 import { AdminLoginPage } from '../pages/AdminLoginPage';
 import { AdminDashboardPage } from '../pages/AdminDashboardPage';
 import { ApplicantDataPage } from '../pages/ApplicantDataPage';
-
 import { testData } from '../config/testData';
 
-let homePage: HomePage;
-let adminLoginPage: AdminLoginPage;
-let dashboard: AdminDashboardPage;
+const adminDecisionScenarios = [
+  { service: 'marriage', action: 'approve', expectedStatus: 'approved' },
+  { service: 'marriage', action: 'reject', expectedStatus: 'rejected' },
 
-test.describe('Admin Tests', () => {
+  { service: 'birth', action: 'approve', expectedStatus: 'approved' },
+  { service: 'birth', action: 'reject', expectedStatus: 'rejected' },
+
+  { service: 'death', action: 'approve', expectedStatus: 'approved' },
+  { service: 'death', action: 'reject', expectedStatus: 'rejected' },
+] as const;
+
+test.describe('Тесты администратора', () => {
+  let homePage: HomePage;
+  let adminLoginPage: AdminLoginPage;
+  let dashboard: AdminDashboardPage;
+
   test.beforeEach(async ({ page }) => {
     await page.goto(process.env.BASE_URL as string);
     await page.waitForLoadState('networkidle');
@@ -21,7 +31,7 @@ test.describe('Admin Tests', () => {
     dashboard = new AdminDashboardPage(page);
   });
 
-  test('TC-04: Администратор успешно входит в систему и видит таблицу приложений.', async () => {
+  test('TC-04: Администратор успешно входит в систему и видит таблицу заявок', async () => {
     await homePage.loginAsAdmin();
     await adminLoginPage.submitAdminLogin(testData.admin);
 
@@ -29,89 +39,49 @@ test.describe('Admin Tests', () => {
     await expect(dashboard.table).toBeVisible();
   });
 
-  test('TC-05: Новая заявка отображается у администратора после регистрации пользователем', async ({ browser }) => {
-  const admin1 = await HomePage.openAsAdmin(browser);
-  const adminLogin1 = new AdminLoginPage(admin1.page);
-  await adminLogin1.loginAndWaitDashboard(testData.admin);
-  await admin1.context.close();
-
-  const user = await HomePage.openAsUser(browser);
-  const applicantPage = new ApplicantDataPage(user.page);
-  const requestNumber = await applicantPage.completeMarriageApplication({
-    applicant: testData.applicant,
-    citizen: testData.citizen,
-    marriageService: testData.marriageService
-  });
-
-  expect(Number(requestNumber), 'Номер заявки должен быть больше 0').toBeGreaterThan(0);
-  await user.context.close();
-
-  const admin2 = await HomePage.openAsAdmin(browser);
-  const adminLogin2 = new AdminLoginPage(admin2.page);
-  const dashboard = await adminLogin2.loginAndWaitDashboard(testData.admin);
-  await dashboard.shouldHaveApplicationWithNumber(requestNumber);
-  await admin2.context.close();
-});
-
-  test.describe('Admin decisions', () => {
+  test.describe('Решения администратора', () => {
     test.beforeEach(async () => {
       await homePage.loginAsAdmin();
       await adminLoginPage.submitAdminLogin(testData.admin);
       await dashboard.waitTable();
     });
 
-  test('TC-06: Одобрение заявки на регистрацию брака', async () => {
+    for (const scenario of adminDecisionScenarios) {
+      test(`Администратор ${scenario.action} ${scenario.service} → ${scenario.expectedStatus}`, async () => {
+          await dashboard.shouldHaveServiceByKey(scenario.service);
+          await dashboard.checkStatus('pending');
 
-    await dashboard.shouldHaveService(/Получение свидетельства о браке/i);
-    await dashboard.shouldHaveStatus(/На рассмотрении/i);
-
-    await dashboard.performAction('approve');
-    await dashboard.checkStatus('approved');
-  });
-
-  test('TC-07: Отказ по заявке на регистрацию брака', async () => {
-
-    await dashboard.shouldHaveService(/Получение свидетельства о браке/i);
-    await dashboard.shouldHaveStatus(/На рассмотрении/i);
-
-    await dashboard.performAction('reject');
-    await dashboard.checkStatus('rejected');
-  });
-
-  test('TC-08: Одобрение заявки на регистрацию рождения', async () => {
-
-    await dashboard.shouldHaveService(/Получение свидетельства о рождении/i);
-    await dashboard.shouldHaveStatus(/На рассмотрении/i);
-
-   await dashboard.performAction('approve');
-   await dashboard.checkStatus('approved');
-  });
-
-  test('TC-09: Отказ по заявке на регистрацию рождения', async () => {
-
-    await dashboard.shouldHaveService(/Получение свидетельства о рождении/i);
-    await dashboard.shouldHaveStatus(/На рассмотрении/i);
-
-    await dashboard.performAction('reject');
-    await dashboard.checkStatus('rejected');
-  });
-
-  test('TC-10: Одобрение заявки на регистрацию смерти', async () => {
- 
-    await dashboard.shouldHaveService(/Получение свидетельства о смерти/i);
-    await dashboard.shouldHaveStatus(/На рассмотрении/i);
-
-    await dashboard.performAction('approve');
-    await dashboard.checkStatus('approved');
-  });
-
-  test('TC-11: Отказ по заявке на регистрацию смерти', async () => {
-
-    await dashboard.shouldHaveService(/Получение свидетельства о смерти/i);
-    await dashboard.shouldHaveStatus(/На рассмотрении/i);
-
-    await dashboard.performAction('reject');
-    await dashboard.checkStatus('rejected');
+          await dashboard.performAction(scenario.action);
+          await dashboard.checkStatus(scenario.expectedStatus);
+        }
+      );
+    }
   });
 });
-});
+
+test('TC-05: Новая заявка отображается у администратора после регистрации пользователем', async ({ browser }) => {
+  const adminInit = await HomePage.openAsAdmin(browser);
+  await new AdminLoginPage(adminInit.page).loginAndWaitDashboard(testData.admin);
+  await adminInit.context.close();
+  
+  const user = await HomePage.openAsUser(browser);
+  const applicantPage = new ApplicantDataPage(user.page);
+  
+  const requestNumber = await applicantPage.completeMarriageApplication({
+    applicant: testData.applicant,
+    citizen: testData.citizen,
+    marriageService: testData.marriageService,
+  });
+  
+  expect(Number(requestNumber), 'Номер заявки должен быть больше 0').toBeGreaterThan(0);
+  
+  await user.context.close();
+  
+  const admin = await HomePage.openAsAdmin(browser);
+  const dashboard = await new AdminLoginPage(admin.page).loginAndWaitDashboard(testData.admin);
+  
+  await dashboard.waitTable();
+  await dashboard.shouldHaveApplicationWithNumber(requestNumber);
+  await admin.context.close();
+}
+);

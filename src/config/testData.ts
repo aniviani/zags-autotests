@@ -73,5 +73,20 @@ export const applicationStatusMap = {
   },
 } as const;
 
-export type ApplicationStatusKey =
-  keyof typeof applicationStatusMap;
+export type ApplicationStatusKey = keyof typeof applicationStatusMap;
+
+export const serviceMap = {
+  marriage: /Получение свидетельства о браке/i,
+  birth: /Получение свидетельства о рождении/i,
+  death: /Получение свидетельства о смерти/i,
+} as const;
+
+export type ServiceKey = keyof typeof serviceMap;
+
+export const statusMap = {
+  pending: /На рассмотрении/i,
+  approved: /Одобрена/i,
+  rejected: /Отклонена/i,
+} as const;
+
+export type StatusKey = keyof typeof statusMap;
