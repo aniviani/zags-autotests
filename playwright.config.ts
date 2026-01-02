@@ -9,14 +9,18 @@ export default defineConfig({
   fullyParallel: false,
   retries: 1,
   workers: 1,
-  
-  reporter: 'html',
-  
+
+  reporter: [
+    ['list'],
+    ['html', { open: 'never' }],
+    ['allure-playwright'],
+  ],
+
   use: {
     baseURL: process.env.BASE_URL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    
+
     // HTTP authentication
     httpCredentials: {
       username: process.env.HTTP_USERNAME || 'user',

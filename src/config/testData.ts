@@ -61,6 +61,12 @@ export const testData = {
 },
 };
 
+export const certificateData = {
+  lastName: 'Иванов',
+  firstName: 'Иван',
+  email: 'ivan@gmail.com',
+};
+
 export const applicationStatusMap = {
   approved: {
     uiText: /Одобрена/i,
@@ -90,3 +96,16 @@ export const statusMap = {
 } as const;
 
 export type StatusKey = keyof typeof statusMap;
+
+export const certificateScenarios = [
+  {
+    title: 'Скачивание справки',
+    type: 'download',
+  },
+  {
+    title: 'Отправка справки на email',
+    type: 'email',
+  },
+] as const;
+
+export type CertificateScenarioType = typeof certificateScenarios[number]['type'];

@@ -14,9 +14,7 @@ export class ApplicantDataPage {
     readonly passport: Locator = page.getByRole('textbox', { name: 'Номер паспорта *' }),
     readonly address: Locator = page.getByRole('textbox', { name: 'Адрес прописки *' }),
     readonly nextButton: Locator = page.getByRole('button', { name: 'Далее' })
-
   ) {}
-
   
   async fillApplicantData(data: any) {
  
