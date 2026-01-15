@@ -73,44 +73,11 @@ test.describe('Функционал "Заказать справку"', () => {
       
       await statusPage.openCertificateForm();
       await statusPage.fillCertificateForm(certificateData, applicationNumber);
-      
-      if (scenario.type === 'download') {
-        await statusPage.submitCertificateForm();
-        
-        const download: Download = await statusPage.downloadCertificate();
-        const filePath = await download.path();
-        expect(filePath).not.toBeNull();
-
-        const stats = fs.statSync(filePath!);
-        expect(stats.size).toBeGreaterThan(0);
-      }
-      
-      if (scenario.type === 'email') {
-        const requestPromise = userPage.waitForRequest((request) => {
-          if (request.method() !== 'POST') return false;
-          const postData = request.postData();
-          if (!postData) return false;
-          
-          return (
-            postData.includes(certificateData.email) &&
-            postData.includes(applicationNumber)
-          );
-        }, { timeout: 15000 }
-      );
-      
-      await statusPage.submitCertificateForm();
-      const request = await requestPromise;
-      
-      expect(
-        request.postData(),
-        'Тело запроса должно содержать email'
-      ).toContain(certificateData.email);
-      
-      expect(
-        request.postData(),
-        'Тело запроса должно содержать номер заявки'
-      ).toContain(applicationNumber);
-    }
-  });
-}
+      await statusPage.processCertificateScenario(scenario.type, {
+        email: certificateData.email,
+        applicationNumber,
+      });
+    });
+  }
 });
+

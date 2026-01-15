@@ -104,15 +104,46 @@ async downloadCertificate(): Promise<Download> {
   return downloadPromise;
 }
 
-async sendCertificateToEmail(): Promise<void> {
-  await this.submitCertificateButton.click();
-}
-
-async validateDownloadedFile(download: Download): Promise<void> {
-  const path = await download.path();
-  expect(path, 'Файл должен быть скачан').not.toBeNull();
+async processCertificateScenario(
+  type: 'download' | 'email',
+  options: {
+    email: string;
+    applicationNumber: string;
+  }
+): Promise<void> {
+  if (type === 'download') {
+    await this.submitCertificateForm();
+    
+    const download = await this.downloadCertificate();
+    const filePath = await download.path();
+    
+    expect(filePath, 'Файл должен быть скачан').not.toBeNull();
+    
+    const stats = fs.statSync(filePath!);
+    expect(stats.size, 'Размер файла должен быть больше 0').toBeGreaterThan(0);  
+  }
   
-  const stats = fs.statSync(path!);
-  expect(stats.size, 'Размер файла должен быть больше 0').toBeGreaterThan(0);
+  if (type === 'email') {
+    const requestPromise = this.page.waitForRequest(
+      (request) => {
+        if (request.method() !== 'POST') return false;
+        const postData = request.postData();
+        
+        if (!postData) return false;
+        return (
+          postData.includes(options.email) &&
+          postData.includes(options.applicationNumber)
+        );
+      },
+      { timeout: 15000 }
+    );
+    
+    await this.submitCertificateForm();
+    const request = await requestPromise;
+    
+    expect(request.postData(), 'Тело запроса должно содержать email').toContain(options.email);
+    
+    expect(request.postData(), 'Тело запроса должно содержать номер заявки').toContain(options.applicationNumber);
+  }
 }
 }
