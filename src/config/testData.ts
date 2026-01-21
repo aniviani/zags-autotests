@@ -74,7 +74,7 @@ export const applicationStatusMap = {
   rejected: {
     uiText: /Отклонена/i,
   },
-  pending: {
+  'under consideration': {
     uiText: /На рассмотрении/i,
   },
 } as const;
@@ -90,7 +90,7 @@ export const serviceMap = {
 export type ServiceKey = keyof typeof serviceMap;
 
 export const statusMap = {
-  pending: /На рассмотрении/i,
+  'under consideration': /На рассмотрении/i,
   approved: /Одобрена/i,
   rejected: /Отклонена/i,
 } as const;

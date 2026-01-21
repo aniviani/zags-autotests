@@ -50,7 +50,7 @@ export class AdminDashboardPage {
         case 'reject':
           await this.rejectButton.click();
           break;
-          
+
           default:
             throw new Error(`Неизвестное действие администратора: ${action}`);
     }

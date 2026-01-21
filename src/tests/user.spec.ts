@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-
 import { HomePage } from '../pages/HomePage';
 import { ApplicantDataPage } from '../pages/ApplicantDataPage';
 import { ServiceSelectionPage } from '../pages/ServiceSelectionPage';
@@ -8,40 +7,13 @@ import { ServiceDataPage } from '../pages/ServiceDataPage';
 import { ApplicationStatusPage } from '../pages/ApplicationStatusPage';
 import { testData } from '../config/testData';
 import { getApiValue } from '../helpers/network';
-
-
-const registrationScenarios = [
-  {
-    title: 'Успешная регистрация брака',
-    selectService: (servicePage: ServiceSelectionPage) =>
-      servicePage.selectMarriageRegistration(),
-    citizenData: testData.citizen,
-    fillServiceData: (serviceDataPage: ServiceDataPage) =>
-      serviceDataPage.fillMarriageData(testData.marriageService),
-  },
-  {
-    title: 'Успешная регистрация рождения',
-    selectService: (servicePage: ServiceSelectionPage) =>
-      servicePage.selectBirthRegistration(),
-    citizenData: testData.citizen,
-    fillServiceData: (serviceDataPage: ServiceDataPage) =>
-      serviceDataPage.fillBirthData(testData.birthService),
-  },
-  {
-    title: 'Успешная регистрация смерти',
-    selectService: (servicePage: ServiceSelectionPage) =>
-      servicePage.selectDeathRegistration(),
-    citizenData: testData.citizenDeath,
-    fillServiceData: (serviceDataPage: ServiceDataPage) =>
-      serviceDataPage.fillDeathData(testData.deathService),
-  },
-];
+import { getDbValue } from '../helpers/db';
+import { registrationScenarios } from '../scenarios/registration.scenarios';
 
 test.describe('Тесты регистрации пользователей', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(process.env.BASE_URL as string);
     await page.waitForLoadState('networkidle');
-
     await new HomePage(page).loginAsUser();
   });
 
@@ -76,6 +48,28 @@ test.describe('Тесты регистрации пользователей', ()
       expect(uiRequestNumber,'Номер заявки в UI должен совпадать с API').toBe(apiRequestNumber);
 
       expect(Number(uiRequestNumber),'Номер заявки должен быть больше 0').toBeGreaterThan(0);
+      
+      const dbKind = await getDbValue({
+        query: 
+        `SELECT kindofapplication
+        FROM reg_office.applications
+        WHERE applicationid = $1`,
+        params: [uiRequestNumber],
+        field: 'kindofapplication',
+      });
+      
+      expect(dbKind,'Тип заявки в БД должен соответствовать выбранному сервису').toBe(scenario.expectedDbKind);
+      
+      const dbStatus = await getDbValue({
+        query: 
+        `SELECT statusofapplication
+        FROM reg_office.applications
+        WHERE applicationid = $1`,
+        params: [uiRequestNumber],
+        field: 'statusofapplication',
+      });
+      
+      expect(dbStatus,'Статус новой заявки в БД должен быть under consideration').toBe('under consideration');
     });
   }
 });

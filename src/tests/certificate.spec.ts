@@ -1,12 +1,9 @@
 import { test, expect, Browser, Download } from '@playwright/test';
-import * as fs from 'fs';
-
 import { HomePage } from '../pages/HomePage';
 import { ApplicantDataPage } from '../pages/ApplicantDataPage';
 import { ApplicationStatusPage } from '../pages/ApplicationStatusPage';
 import { AdminLoginPage } from '../pages/AdminLoginPage';
 import { AdminDashboardPage } from '../pages/AdminDashboardPage';
-
 import { testData, certificateData, certificateScenarios, } from '../config/testData';
 
 async function createAndApproveApplication(browser: Browser) {
@@ -49,10 +46,7 @@ async function createAndApproveApplication(browser: Browser) {
   const statusPage = new ApplicationStatusPage(userPage);
   await statusPage.refreshStatus();
 
-  await expect(
-    statusPage.orderCertificateButton,
-    'Кнопка "Заказать справку" должна появиться'
-  ).toBeVisible({ timeout: 10000 });
+  await expect(statusPage.orderCertificateButton,'Кнопка "Заказать справку" должна появиться').toBeVisible({ timeout: 10000 });
 
   return { 
     userContext, 
@@ -77,6 +71,7 @@ test.describe('Функционал "Заказать справку"', () => {
         email: certificateData.email,
         applicationNumber,
       });
+
     });
   }
 });
