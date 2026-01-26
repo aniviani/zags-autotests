@@ -49,27 +49,19 @@ test.describe('Тесты регистрации пользователей', ()
 
       expect(Number(uiRequestNumber),'Номер заявки должен быть больше 0').toBeGreaterThan(0);
       
-      const dbKind = await getDbValue({
-        query: 
-        `SELECT kindofapplication
-        FROM reg_office.applications
-        WHERE applicationid = $1`,
+       const dbKind = await getDbValue({
+        scenario: 'appl_kind',
         params: [uiRequestNumber],
-        field: 'kindofapplication',
       });
       
-      expect(dbKind,'Тип заявки в БД должен соответствовать выбранному сервису').toBe(scenario.expectedDbKind);
-      
-      const dbStatus = await getDbValue({
-        query: 
-        `SELECT statusofapplication
-        FROM reg_office.applications
-        WHERE applicationid = $1`,
+       expect(dbKind,'Тип заявки в БД должен соответствовать выбранному сервису').toBe(scenario.expectedDbKind);
+       
+       const dbStatus = await getDbValue({
+        scenario: 'appl_status',
         params: [uiRequestNumber],
-        field: 'statusofapplication',
       });
       
-      expect(dbStatus,'Статус новой заявки в БД должен быть under consideration').toBe('under consideration');
+       expect(dbStatus,'Статус новой заявки в БД должен быть under consideration').toBe('under consideration');
     });
   }
 });

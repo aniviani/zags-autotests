@@ -33,7 +33,7 @@ test.describe('Тесты администратора', () => {
       marriageService: testData.marriageService,
     });
     
-    expect(Number(applicationId),'Номер заявки должен быть больше 0').toBeGreaterThan(0);
+     expect(Number(applicationId),'Номер заявки должен быть больше 0').toBeGreaterThan(0);
 
     await user.context.close();
     await page.goto(process.env.BASE_URL as string);
@@ -68,14 +68,10 @@ test.describe('Тесты администратора', () => {
           await dashboard.checkStatus(scenario.expectedStatus);
           
           const dbStatus = await getDbValue({
-            query: 
-            `SELECT statusofapplication
-            FROM reg_office.applications
-            WHERE applicationid = $1`,
-            params: [applicationId],
-            field: 'statusofapplication',
-          });
-          
+          scenario: 'appl_status',
+          params: [applicationId],
+        });
+
           expect(dbStatus,'Статус заявки в БД должен совпадать с решением администратора').toBe(scenario.expectedStatus);
         }
       );

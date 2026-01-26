@@ -1,16 +1,23 @@
 import { Client } from 'pg';
+import { selectScenarios, SelectScenarioKey } from './dbApplications';
 
-type GetDbValueOptions = {
-    query: string;
-    params?: any[];
-    field: string;
-};
+ type GetDbValueOptions = {
+    scenario: SelectScenarioKey;
+    params: any[];
+ };
 
 export async function getDbValue({
-    query,
-    params = [],
-    field,
+    scenario,
+    params,
 }: GetDbValueOptions): Promise<string> {
+    
+    const { table, whereField, selectField } = selectScenarios[scenario];
+    
+    const query = 
+    `SELECT ${selectField}
+    FROM ${table}
+    WHERE ${whereField} = $1`;
+
     const client = new Client({
         host: process.env.DB_HOST,
         port: Number(process.env.DB_PORT),
@@ -23,26 +30,14 @@ export async function getDbValue({
         await client.connect();
         const result = await client.query(query, params);
         
-        if (result.rows.length === 0) {
+        if (!result.rows.length) {
             throw new Error('DB query returned no rows');
         }
         
-        const value = result.rows[0][field];
-        
-        if (value === undefined) {
-            throw new Error(`Field "${field}" not found in DB result`);
-        }
-        
-        if (value === null || String(value).trim() === '') {
-            throw new Error(`Field "${field}" in DB is empty`);
-        }
-        
-        return String(value);
-    
+        return String(result.rows[0][selectField]);
     } catch (e: any) {
-        throw new Error(`getDbValue failed: field="${field}". ${e.message}`);
-    
-    } finally { 
+        throw new Error(`getDbValue failed (${scenario}): ${e.message}`);
+    } finally {
         await client.end();
     }
 }
